@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MotorTrack">
+    <meta name="theme-color" content="#0f172a">
+    <title>MotorTrack Mobile</title>
+    <style>
+        /* ═══════════════════════════════════════════
+           VARIÁVEIS — idênticas ao MotorTrack_V2
+        ═══════════════════════════════════════════ */
+        * {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        :root {
+            --azul-escuro: #0f172a;
+            --azul-medio:  #0ea5e9;
+            --cinza-claro: #f8fafc;
+            --branco:      #ffffff;
+            --vermelho:    #ef4444;
+            --verde:       #22c55e;
+            --amarelo:     #eab308;
+            --cinza:       #64748b;
+            --cinza-bg:    #f1f5f9;
+
+            /* Light mode (default) */
+            --bg-primary:   #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary:  #f1f5f9;
+            --text-primary:    #1e293b;
+            --text-secondary:  #64748b;
+            --border-color:    #e2e8f0;
+            --sidebar-bg:      #0f172a;
+            --header-bg:       #ffffff;
+            --card-bg:         #ffffff;
+            --input-bg:        #ffffff;
+            --input-border:    #e2e8f0;
+            --transition:      all 0.3s ease;
+        }
+        :root.dark-mode {
+            --bg-primary:   #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary:  #1f2937;
+            --text-primary:    #f8fafc;
+            --text-secondary:  #cbd5e1;
+            --border-color:    #334155;
+            --header-bg:       #1e293b;
+            --card-bg:         #1e293b;
+            --input-bg:        #334155;
+            --input-border:    #475569;
+        }
+
+        /* ─── BASE ─── */
+        body {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 40px;
+            transition: var(--transition);
+        }
+
+        /* ─── HEADER — mesma cor do sidebar do V2 ─── */
+        .app-header {
+            background-color: var(--azul-escuro);
+            color: #fff;
+            padding: 16px 20px 12px;
+            position: sticky; top: 0; z-index: 100;
+            padding-top: max(16px, env(safe-area-inset-top));
+            box-shadow: 0 1px 4px rgba(0,0,0,.25);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+        .header-left { display: flex; align-items: center; gap: 10px; }
+        .app-title {
+            font-size: 18px; font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+        .app-title span { color: var(--azul-medio); }
+        .counter {
+            background: rgba(14,165,233,.15);
+            color: var(--azul-medio);
+            border: 1px solid rgba(14,165,233,.3);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px; font-weight: 600;
+            white-space: nowrap;
+        }
+        .theme-btn {
+            background: rgba(14,165,233,.15);
+            border: 1px solid rgba(14,165,233,.3);
+            color: #fff;
+            border-radius: 6px;
+            width: 36px; height: 36px;
+            font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition); flex-shrink: 0;
+        }
+        .theme-btn:active { background: rgba(14,165,233,.3); }
+        .search-bar {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #fff; font-size: 14px; width: 100%; outline: none;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        .search-bar::placeholder { color: rgba(255,255,255,.4); }
+        .search-bar:focus {
+            background: rgba(255,255,255,.12);
+            border-color: var(--azul-medio);
+            box-shadow: 0 0 0 2px rgba(14,165,233,.2);
+        }
+
+        /* ─── BARRA DE FILTROS ─── */
+        .filter-bar {
+            background-color: var(--azul-escuro);
+            padding: 0 16px 12px;
+            display: flex; gap: 8px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .chip {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.15);
+            color: rgba(255,255,255,.6);
+            border-radius: 6px;
+            padding: 7px 14px;
+            font-size: 12px; font-weight: 500;
+            white-space: nowrap; cursor: pointer;
+            transition: var(--transition);
+            user-select: none; -webkit-user-select: none;
+        }
+        .chip.active {
+            background: rgba(14,165,233,.2);
+            border-color: var(--azul-medio);
+            color: var(--azul-medio);
+        }
+
+        /* ─── LISTA DE CARDS ─── */
+        .motor-list {
+            padding: 16px 14px 0;
+            display: flex; flex-direction: column; gap: 14px;
+        }
+
+        /* ─── CARD MOTOR — igual ao motor-card do V2 ─── */
+        .motor-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,.05);
+            transition: var(--transition);
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none; -webkit-user-select: none;
+        }
+        .motor-card:active {
+            border-color: var(--azul-medio);
+            box-shadow: 0 4px 12px rgba(14,165,233,.1);
+        }
+        .motor-card.alerta {
+            border-left: 4px solid var(--vermelho);
+            background-color: rgba(239,68,68,.04);
+        }
+
+        .motor-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .motor-card-title {
+            font-size: 17px; font-weight: 600;
+            color: var(--text-primary);
+        }
+        .motor-card-make {
+            font-size: 12px; color: var(--text-secondary); margin-top: 3px;
+        }
+
+        /* badges — mesmos do V2 */
+        .badge {
+            padding: 6px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 600;
+            display: inline-block; flex-shrink: 0;
+        }
+        .badge-operando, .badge-Operando { background-color: #dcfce7; color: #166534; }
+        .badge-estoque,  .badge-Estoque  { background-color: #fef3c7; color: #92400e; }
+        .badge-oficina,  .badge-Oficina  { background-color: #dbeafe; color: #0c4a6e; }
+        .badge-sucata,   .badge-Sucata   { background-color: #fee2e2; color: #7f1d1d; }
+
+        .motor-card-info {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 14px; margin-bottom: 16px; font-size: 13px;
+        }
+        .motor-info-item { display: flex; flex-direction: column; }
+        .motor-info-label {
+            font-weight: 600; color: var(--text-secondary);
+            margin-bottom: 3px; text-transform: uppercase;
+            font-size: 11px; letter-spacing: 0.5px;
+        }
+        .motor-info-value { color: var(--text-primary); font-size: 13px; }
+        .crit-A { color: #dc2626; font-weight: 700; }
+        .crit-B { color: #d97706; font-weight: 700; }
+        .crit-C { color: var(--cinza); font-weight: 700; }
+
+        .motor-card-local {
+            font-size: 12px; color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+        .motor-card-footer {
+            display: flex; gap: 8px;
+            padding-top: 14px; border-top: 1px solid var(--border-color);
+        }
+        .dot-alert {
+            display: inline-block; width: 7px; height: 7px;
+            border-radius: 50%; background: var(--vermelho); margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* ─── BOTÕES — mesmos do V2 ─── */
+        .btn {
+            flex: 1; padding: 10px 14px;
+            border: none; border-radius: 6px;
+            font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+            user-select: none; -webkit-user-select: none;
+            font-family: inherit;
+        }
+        .btn:active { transform: scale(.97); }
+        .btn-primary   { background-color: var(--azul-medio); color: #fff; }
+        .btn-primary:active  { background-color: #0284c7; }
+        .btn-secondary { background-color: var(--cinza); color: #fff; }
+        .btn-secondary:active { background-color: #475569; }
+        .btn-danger    { background-color: var(--vermelho); color: #fff; }
+        .btn-full {
+            width: 100%; padding: 12px; font-size: 14px;
+            border-radius: 6px; display: block; margin-top: 10px;
+        }
+
+        /* ─── VAZIO ─── */
+        .empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+        .empty .icon { font-size: 44px; margin-bottom: 12px; }
+        .empty p { font-size: 14px; }
+
+        /* ─── OVERLAY ─── */
+        .overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,.45); z-index: 200;
+        }
+        .overlay.open { display: block; }
+
+        /* ─── BOTTOM SHEET ─── */
+        .sheet {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background-color: var(--card-bg);
+            border-radius: 12px 12px 0 0;
+            z-index: 201;
+            max-height: 93vh;
+            transform: translateY(100%);
+            transition: transform .35s cubic-bezier(.32,.72,0,1);
+            display: flex; flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+        }
+        .sheet.open { transform: translateY(0); }
+
+        .sheet-drag {
+            width: 36px; height: 4px;
+            background: var(--border-color);
+            border-radius: 2px; margin: 10px auto 0; flex-shrink: 0;
+        }
+        .sheet-header {
+            padding: 14px 20px 14px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0;
+        }
+        .sheet-title {
+            font-size: 18px; font-weight: 600;
+            color: var(--text-primary);
+        }
+        .sheet-close {
+            background: var(--bg-tertiary);
+            border: none; border-radius: 50%;
+            width: 32px; height: 32px; font-size: 14px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        .sheet-close:active { background: var(--border-color); }
+        .sheet-body {
+            padding: 20px; overflow-y: auto;
+            -webkit-overflow-scrolling: touch; flex: 1;
+            background-color: var(--bg-primary);
+        }
+
+        /* ─── BANNER DENTRO DO SHEET ─── */
+        .info-banner {
+            background: linear-gradient(135deg, var(--azul-escuro), #1e3a5f);
+            border-radius: 8px; padding: 18px; margin-bottom: 20px; color: #fff;
+            box-shadow: 0 4px 12px rgba(14,165,233,.2);
+        }
+        .info-banner .bid {
+            font-size: 20px; font-weight: 600; color: var(--azul-medio);
+        }
+        .info-banner .bdesc {
+            font-size: 13px; color: rgba(255,255,255,.7); margin-top: 4px;
+        }
+        .info-banner .bloc {
+            font-size: 12px; color: rgba(255,255,255,.45); margin-top: 8px;
+        }
+
+        /* ─── SECTION TITLE — igual ao .section-title do V2 ─── */
+        .sec-label {
+            font-size: 12px; font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 14px; margin-top: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sec-label:first-child { margin-top: 0; }
+
+        /* ─── FORM ─── */
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block; font-size: 13px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-primary); margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            font-size: 13px; font-family: inherit;
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            -webkit-appearance: none; appearance: none;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-input:focus {
+            border-color: var(--azul-medio);
+            box-shadow: 0 0 0 2px rgba(14,165,233,.1);
+        }
+        .form-input[readonly] {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+        .form-input.erro { border-color: var(--vermelho); }
+        .row2 {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-bottom: 16px;
+        }
+
+        /* ─── GRID DE DETALHES ─── */
+        .det-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-bottom: 4px;
+        }
+        .det-item {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px; padding: 10px 12px;
+        }
+        .det-item.full { grid-column: span 2; }
+        .det-label {
+            font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        .det-value {
+            font-size: 13px; font-weight: 500;
+            color: var(--text-primary); margin-top: 4px;
+        }
+
+        /* ─── TIMELINE ─── */
+        .tl-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+        .tl-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            background-color: var(--azul-medio); margin-top: 3px; flex-shrink: 0;
+        }
+        .tl-text { font-size: 13px; line-height: 1.5; color: var(--text-primary); }
+        .tl-date { font-size: 12px; color: var(--cinza); margin-top: 2px; }
+
+        /* ─── TOAST ─── */
+        .toast {
+            position: fixed; bottom: 28px;
+            left: 50%; transform: translateX(-50%) translateY(16px);
+            background: #1e293b; color: #fff;
+            padding: 12px 20px; border-radius: 8px;
+            font-size: 13px; z-index: 300;
+            opacity: 0; transition: all .3s ease;
+            white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,.35);
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ─── DARK MODE — badges e inputs ─── */
+        :root.dark-mode .badge-operando,
+        :root.dark-mode .badge-Operando { background-color: #14532d; color: #86efac; }
+        :root.dark-mode .badge-estoque,
+        :root.dark-mode .badge-Estoque  { background-color: #78350f; color: #fde68a; }
+        :root.dark-mode .badge-oficina,
+        :root.dark-mode .badge-Oficina  { background-color: #0c2a4a; color: #93c5fd; }
+        :root.dark-mode .badge-sucata,
+        :root.dark-mode .badge-Sucata   { background-color: #7f1d1d; color: #fca5a5; }
+        :root.dark-mode .motor-card.alerta { background-color: rgba(239,68,68,.08); }
+        :root.dark-mode .info-banner { background: linear-gradient(135deg, #0f172a, #1a3050); }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+    <div class="header-top">
+        <div class="header-left">
+            <div class="app-title">Motor<span>Track</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span class="counter" id="counter">—</span>
+            <button class="theme-btn" id="themeBtn" title="Alternar tema">🌙</button>
+        </div>
+    </div>
+    <input class="search-bar" type="search" id="searchInput"
+           placeholder="Buscar por tag, fabricante, local…" autocomplete="off">
+</div>
+
+<!-- CHIPS DE FILTRO -->
+<div class="filter-bar">
+    <div class="chip active" data-f="">Todos</div>
+    <div class="chip" data-f="Operando">✅ Operando</div>
+    <div class="chip" data-f="Estoque">📦 Estoque</div>
+    <div class="chip" data-f="Oficina">🔧 Oficina</div>
+    <div class="chip" data-f="Sucata">❌ Sucata</div>
+</div>
+
+<!-- LISTA -->
+<div class="motor-list" id="motorList"></div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
+
+<!-- ═══ SHEET: DETALHES ═══ -->
+<div class="sheet" id="sheetDet">
+    <div class="sheet-drag"></div>
+    <div class="sheet-header">
+        <span class="sheet-title" id="detTitulo">Detalhes</span>
+        <button class="sheet-close" id="closeDet">✕</button>
+    </div>
+    <div class="sheet-body" id="detBody"></div>
+</div>
+
+<!-- ═══ SHEET: MOVIMENTAÇÃO ═══ -->
+<div class="sheet" id="sheetMov">
+    <div class="sheet-drag"></div>
+    <div class="sheet-header">
+        <span class="sheet-title">Movimentar Motor</span>
+        <button class="sheet-close" id="closeMov">✕</button>
+    </div>
+    <div class="sheet-body">
+        <div class="info-banner">
+            <div class="bid"  id="mov_id">—</div>
+            <div class="bdesc" id="mov_desc">—</div>
+            <div class="bloc"  id="mov_loc">📍 —</div>
+        </div>
+
+        <form id="formMov" novalidate>
+            <p class="sec-label">Situação Atual</p>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Status Atual</label>
+                    <input class="form-input" id="mov_status" readonly>
+                </div>
+                <div>
+                    <label class="form-label">Criticidade</label>
+                    <input class="form-input" id="mov_crit" readonly>
+                </div>
+            </div>
+
+            <p class="sec-label">Nova Movimentação</p>
+
+            <div class="form-group">
+                <label class="form-label">Novo Local de Instalação *</label>
+                <input class="form-input" type="text" id="mov_novoLocal"
+                       placeholder="Ex: BOMBA-02, ALMOXARIFADO"
+                       autocomplete="off" autocapitalize="characters" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Novo Status *</label>
+                <select class="form-input" id="mov_novoStatus" required>
+                    <option value="">Selecione…</option>
+                    <option value="Operando">✅ Operando</option>
+                    <option value="Estoque">📦 Estoque</option>
+                    <option value="Oficina">🔧 Oficina</option>
+                    <option value="Sucata">❌ Sucata</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Sincronização SAP</label>
+                <select class="form-input" id="mov_sap">
+                    <option value="pendente">🟡 Marcar como Pendente</option>
+                    <option value="nao_sincronizado">⚪ Não Sincronizado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Observações</label>
+                <textarea class="form-input" id="mov_obs" rows="3"
+                          placeholder="Ex: Motor enviado para manutenção preventiva…"
+                          style="resize:none;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">✅ Confirmar Movimentação</button>
+            <button type="button" class="btn btn-secondary btn-full" id="btnCancelarMov">Cancelar</button>
+            <div style="height:20px;"></div>
+        </form>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DADOS INICIAIS (idênticos ao site desktop)
+// ══════════════════════════════════════════════
+const dadosIniciais = [
+    {
+        id_unico_tag: 'M001', fabricante: 'WEG', modelo: 'W22',
+        num_serie_fabricante: 'WEG-2020-001', potencia_cv: 5, potencia_kw: 3.7,
+        rotacao_rpm: 1750, carcaca: '215T', tensao_v: '220/380',
+        corrente_in_a: 10.5, grau_protecao_ip: 'IP55', classe_isolamento: 'F',
+        rendimento_classe_ie: 'IE3', fator_servico: 1.15,
+        rolamento_dianteiro: '6205 C3', rolamento_traseiro: '6206 C3',
+        peso_kg: 45, ano_fabricacao: 2020,
+        status_atual: 'Operando', local_atual: 'BOMBA-01-LINHA1', criticidade: 'A',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1001', num_equipamento_sap: '10050',
+        local_instalacao_sap: 'ETA-PRINCIPAL',
+        status_sincronizacao_sap: 'sincronizado', ultima_sincronizacao_sap: '2026-03-04 08:30',
+        num_rebobinagens: 0, data_ultima_manutencao: '2024-03-15',
+        observacoes: 'Motor em bom estado. Lubrificação em dia.',
+        historico: [
+            { data: '2020-05-10', acao: 'Motor recebido do fornecedor e instalado na BOMBA-01-LINHA1' },
+            { data: '2024-03-15', acao: 'Troca preventiva de rolamentos realizada' }
+        ]
+    },
+    {
+        id_unico_tag: 'M002', fabricante: 'Siemens', modelo: '1LE1',
+        num_serie_fabricante: 'SIE-2019-789', potencia_cv: 10, potencia_kw: 7.5,
+        rotacao_rpm: 1450, carcaca: '256T', tensao_v: '380',
+        corrente_in_a: 15.2, grau_protecao_ip: 'IP54', classe_isolamento: 'H',
+        rendimento_classe_ie: 'IE2', fator_servico: 1.0,
+        rolamento_dianteiro: '6307 C3', rolamento_traseiro: '6308 C3',
+        peso_kg: 70, ano_fabricacao: 2019,
+        status_atual: 'Estoque', local_atual: 'Almoxarifado - Prateleira A3', criticidade: 'B',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1002', num_equipamento_sap: '10051',
+        local_instalacao_sap: 'ALMOX-A3',
+        status_sincronizacao_sap: 'pendente', ultima_sincronizacao_sap: '2026-03-03 14:20',
+        num_rebobinagens: 1, data_ultima_manutencao: '2023-11-20',
+        observacoes: 'Motor reserva para Bomba 3. Aguardando instalação.',
+        historico: [
+            { data: '2019-08-01', acao: 'Motor recebido e armazenado no almoxarifado' },
+            { data: '2021-06-15', acao: 'Retirado para Oficina - Rebobinagem (1ª vez)' },
+            { data: '2021-07-10', acao: 'Retornou da oficina após rebobinagem. Motor recolhido ao estoque.' }
+        ]
+    },
+    {
+        id_unico_tag: 'M003', fabricante: 'ABB', modelo: 'M2BAX',
+        num_serie_fabricante: 'ABB-2018-345', potencia_cv: 2, potencia_kw: 1.5,
+        rotacao_rpm: 3600, carcaca: '143T', tensao_v: '440',
+        corrente_in_a: 3.8, grau_protecao_ip: 'IP65', classe_isolamento: 'B',
+        rendimento_classe_ie: 'IE1', fator_servico: 1.2,
+        rolamento_dianteiro: '6203 C3', rolamento_traseiro: '6204 C3',
+        peso_kg: 25, ano_fabricacao: 2018,
+        status_atual: 'Oficina', local_atual: 'Oficina Rebobinagem - São Paulo', criticidade: 'A',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1003', num_equipamento_sap: '10052',
+        local_instalacao_sap: 'EXAUSTAO-02',
+        status_sincronizacao_sap: 'erro', ultima_sincronizacao_sap: '2026-03-01 10:15',
+        num_rebobinagens: 3, data_ultima_manutencao: '2025-01-10',
+        observacoes: 'ATENÇÃO: 3ª rebobinagem. Avaliar substituição por motor IE3.',
+        historico: [
+            { data: '2018-03-01', acao: 'Motor instalado na Exaustão-02' },
+            { data: '2020-04-12', acao: '1ª Rebobinagem - Oficina WEG' },
+            { data: '2022-09-05', acao: '2ª Rebobinagem - Curto na bobina por sobrecarga' },
+            { data: '2025-01-10', acao: '3ª Rebobinagem em andamento. Motor na oficina externa.' }
+        ]
+    },
+    {
+        id_unico_tag: 'M004', fabricante: 'WEG', modelo: 'W21',
+        num_serie_fabricante: 'WEG-2021-456', potencia_cv: 7.5, potencia_kw: 5.5,
+        rotacao_rpm: 1750, carcaca: '225T', tensao_v: '380',
+        corrente_in_a: 13.2, grau_protecao_ip: 'IP55', classe_isolamento: 'F',
+        rendimento_classe_ie: 'IE3', fator_servico: 1.15,
+        rolamento_dianteiro: '6306 C3', rolamento_traseiro: '6307 C3',
+        peso_kg: 55, ano_fabricacao: 2021,
+        status_atual: 'Operando', local_atual: 'COMPRESSOR-02', criticidade: 'A',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1004', num_equipamento_sap: '10053',
+        local_instalacao_sap: 'COMPRESSOR-02',
+        status_sincronizacao_sap: 'sincronizado', ultima_sincronizacao_sap: '2026-03-04 09:00',
+        num_rebobinagens: 0, data_ultima_manutencao: '2025-02-01',
+        observacoes: 'Motor novo. Temperatura normal. Vibração dentro dos limites.',
+        historico: [
+            { data: '2021-06-10', acao: 'Instalação e comissionamento' },
+            { data: '2025-02-01', acao: 'Inspeção preventiva - OK' }
+        ]
+    },
+    {
+        id_unico_tag: 'M005', fabricante: 'Siemens', modelo: '1LE0',
+        num_serie_fabricante: 'SIE-2017-234', potencia_cv: 15, potencia_kw: 11,
+        rotacao_rpm: 1450, carcaca: '280S', tensao_v: '380/440',
+        corrente_in_a: 22.5, grau_protecao_ip: 'IP54', classe_isolamento: 'H',
+        rendimento_classe_ie: 'IE2', fator_servico: 1.15,
+        rolamento_dianteiro: '6309 C3', rolamento_traseiro: '6309 C3',
+        peso_kg: 95, ano_fabricacao: 2017,
+        status_atual: 'Operando', local_atual: 'VENTILADOR-PRINCIPAL', criticidade: 'A',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1005', num_equipamento_sap: '10054',
+        local_instalacao_sap: 'VENTILADOR-PRINCIPAL',
+        status_sincronizacao_sap: 'nao_sincronizado', ultima_sincronizacao_sap: '',
+        num_rebobinagens: 2, data_ultima_manutencao: '2024-12-10',
+        observacoes: 'Motor crítico. Monitorado continuamente.',
+        historico: [
+            { data: '2017-05-15', acao: 'Instalação inicial' },
+            { data: '2020-08-20', acao: '1ª Rebobinagem completa' },
+            { data: '2023-03-10', acao: '2ª Rebobinagem - Falha parcial de isolamento' },
+            { data: '2024-12-10', acao: 'Manutenção preventiva e análise de vibração' }
+        ]
+    },
+    {
+        id_unico_tag: 'M006', fabricante: 'ABB', modelo: 'IE3 Premium',
+        num_serie_fabricante: 'ABB-2023-567', potencia_cv: 20, potencia_kw: 15,
+        rotacao_rpm: 1500, carcaca: '280M', tensao_v: '380',
+        corrente_in_a: 28.5, grau_protecao_ip: 'IP55', classe_isolamento: 'H',
+        rendimento_classe_ie: 'IE3', fator_servico: 1.0,
+        rolamento_dianteiro: '6310 C3', rolamento_traseiro: '6310 C3',
+        peso_kg: 110, ano_fabricacao: 2023,
+        status_atual: 'Operando', local_atual: 'BOMBA-CENTRIFUGA-01', criticidade: 'C',
+        centro_planejamento_sap: '2000', grupo_planejamento_sap: 'MEC',
+        centro_custo_sap: 'CC-2001', num_equipamento_sap: '10055',
+        local_instalacao_sap: 'BOMBA-CENTRIFUGA-01',
+        status_sincronizacao_sap: 'pendente', ultima_sincronizacao_sap: '2026-03-02 11:30',
+        num_rebobinagens: 0, data_ultima_manutencao: '2025-01-15',
+        observacoes: 'Motor de última geração com eficiência IE3. Baixo ruído.',
+        historico: [
+            { data: '2023-10-01', acao: 'Recebimento e teste em fábrica' },
+            { data: '2023-11-15', acao: 'Instalação em campo' },
+            { data: '2025-01-15', acao: 'Primeira inspeção de rotina' }
+        ]
+    },
+    {
+        id_unico_tag: 'M007', fabricante: 'WEG', modelo: 'W22 Plus',
+        num_serie_fabricante: 'WEG-2022-789', potencia_cv: 3, potencia_kw: 2.2,
+        rotacao_rpm: 3600, carcaca: '132S', tensao_v: '220',
+        corrente_in_a: 8.5, grau_protecao_ip: 'IP54', classe_isolamento: 'F',
+        rendimento_classe_ie: 'IE2', fator_servico: 1.15,
+        rolamento_dianteiro: '6203 C3', rolamento_traseiro: '6203 C3',
+        peso_kg: 20, ano_fabricacao: 2022,
+        status_atual: 'Estoque', local_atual: 'ALMOXARIFADO - SETOR B', criticidade: 'B',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1006', num_equipamento_sap: '10056',
+        local_instalacao_sap: 'ALMOX-B',
+        status_sincronizacao_sap: 'sincronizado', ultima_sincronizacao_sap: '2026-03-03 13:00',
+        num_rebobinagens: 0, data_ultima_manutencao: '2025-01-20',
+        observacoes: 'Motor reserva em perfeitas condições.',
+        historico: [
+            { data: '2022-09-10', acao: 'Recebimento do fornecedor' },
+            { data: '2025-01-20', acao: 'Inspeção periódica de estoque' }
+        ]
+    },
+    {
+        id_unico_tag: 'M008', fabricante: 'Siemens', modelo: '1LE1-024',
+        num_serie_fabricante: 'SIE-2018-901', potencia_cv: 5, potencia_kw: 3.7,
+        rotacao_rpm: 1450, carcaca: '200L', tensao_v: '440',
+        corrente_in_a: 8.2, grau_protecao_ip: 'IP55', classe_isolamento: 'B',
+        rendimento_classe_ie: 'IE2', fator_servico: 1.0,
+        rolamento_dianteiro: '6205 C3', rolamento_traseiro: '6205 C3',
+        peso_kg: 38, ano_fabricacao: 2018,
+        status_atual: 'Sucata', local_atual: 'Pátio de Sucata - Lote A', criticidade: 'C',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1007', num_equipamento_sap: '10057',
+        local_instalacao_sap: 'PATIO-SUCATA',
+        status_sincronizacao_sap: 'erro', ultima_sincronizacao_sap: '2026-02-20 09:20',
+        num_rebobinagens: 2, data_ultima_manutencao: '2024-06-15',
+        observacoes: 'Descomissionado. Falha permanente de isolamento.',
+        historico: [
+            { data: '2018-04-01', acao: 'Instalação na unidade' },
+            { data: '2021-02-10', acao: '1ª Rebobinagem' },
+            { data: '2023-11-05', acao: '2ª Rebobinagem - Falha crítica após 3 meses' },
+            { data: '2024-06-15', acao: 'Desativado e encaminhado para sucata' }
+        ]
+    },
+    {
+        id_unico_tag: 'M009', fabricante: 'WEG', modelo: 'Premium Eficiência',
+        num_serie_fabricante: 'WEG-2024-234', potencia_cv: 30, potencia_kw: 22,
+        rotacao_rpm: 1500, carcaca: '315M', tensao_v: '380',
+        corrente_in_a: 42.5, grau_protecao_ip: 'IP55', classe_isolamento: 'H',
+        rendimento_classe_ie: 'IE3', fator_servico: 1.15,
+        rolamento_dianteiro: '6312 C3', rolamento_traseiro: '6312 C3',
+        peso_kg: 145, ano_fabricacao: 2024,
+        status_atual: 'Operando', local_atual: 'MOINHO-PRINCIPAL-ETA', criticidade: 'A',
+        centro_planejamento_sap: '2000', grupo_planejamento_sap: 'MEC',
+        centro_custo_sap: 'CC-2002', num_equipamento_sap: '10058',
+        local_instalacao_sap: 'MOINHO-PRINCIPAL-ETA',
+        status_sincronizacao_sap: 'nao_sincronizado', ultima_sincronizacao_sap: '',
+        num_rebobinagens: 0, data_ultima_manutencao: '2025-01-25',
+        observacoes: 'Motor novo em operação. Garantia de 5 anos.',
+        historico: [
+            { data: '2024-05-10', acao: 'Pedido e aprovação' },
+            { data: '2024-09-01', acao: 'Comissionamento e testes' },
+            { data: '2025-01-25', acao: 'Inspeção de rotina - tudo normal' }
+        ]
+    },
+    {
+        id_unico_tag: 'M010', fabricante: 'ABB', modelo: 'IE2 Padrão',
+        num_serie_fabricante: 'ABB-2019-012', potencia_cv: 12, potencia_kw: 9,
+        rotacao_rpm: 1750, carcaca: '250M', tensao_v: '380',
+        corrente_in_a: 17.5, grau_protecao_ip: 'IP54', classe_isolamento: 'F',
+        rendimento_classe_ie: 'IE2', fator_servico: 1.15,
+        rolamento_dianteiro: '6308 C3', rolamento_traseiro: '6308 C3',
+        peso_kg: 82, ano_fabricacao: 2019,
+        status_atual: 'Oficina', local_atual: 'Oficina Interna - Bancada 2', criticidade: 'B',
+        centro_planejamento_sap: '1000', grupo_planejamento_sap: 'ELE',
+        centro_custo_sap: 'CC-1008', num_equipamento_sap: '10059',
+        local_instalacao_sap: 'OFICINA-INTERNA-B2',
+        status_sincronizacao_sap: 'pendente', ultima_sincronizacao_sap: '2026-02-15 15:10',
+        num_rebobinagens: 1, data_ultima_manutencao: '2025-02-15',
+        observacoes: 'Em rebobinagem. Falha por queimadura parcial.',
+        historico: [
+            { data: '2019-02-01', acao: 'Instalação inicial' },
+            { data: '2025-02-10', acao: 'Retirado para oficina - Falha em 2 fases' },
+            { data: '2025-02-15', acao: 'Rebobinagem em andamento' }
+        ]
+    }
+];
+
+// ══════════════════════════════════════════════
+//  ESTADO
+// ══════════════════════════════════════════════
+const KEY = 'motortrack_dados';
+
+function carregar() {
+    try {
+        const s = localStorage.getItem(KEY);
+        return s ? JSON.parse(s) : dadosIniciais;
+    } catch(e) { return dadosIniciais; }
+}
+function salvar(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
+
+let motores    = carregar();
+let filtroSts  = '';
+let filtroBusc = '';
+let idxAtual   = null;
+
+// ══════════════════════════════════════════════
+//  RENDER LISTA
+// ══════════════════════════════════════════════
+function renderLista() {
+    const busca = filtroBusc.toLowerCase();
+    const lista = motores.filter(m => {
+        const okStatus = !filtroSts || m.status_atual === filtroSts;
+        const okBusca  = !busca ||
+            m.id_unico_tag.toLowerCase().includes(busca) ||
+            m.fabricante.toLowerCase().includes(busca) ||
+            (m.modelo || '').toLowerCase().includes(busca) ||
+            (m.local_atual || '').toLowerCase().includes(busca);
+        return okStatus && okBusca;
+    });
+
+    document.getElementById('counter').textContent = `${lista.length} motor${lista.length !== 1 ? 'es' : ''}`;
+    const cont = document.getElementById('motorList');
+
+    if (!lista.length) {
+        cont.innerHTML = `<div class="empty"><div class="icon">🔍</div><p>Nenhum motor encontrado</p></div>`;
+        return;
+    }
+
+    cont.innerHTML = lista.map(m => {
+        const idx  = motores.indexOf(m);
+        const alrt = parseInt(m.num_rebobinagens) >= 3;
+        const alertDot = alrt ? '<span class="dot-alert"></span>' : '';
+        const alertClass = alrt ? ' alerta' : '';
+        const badgeClass = `badge-${m.status_atual.toLowerCase()}`;
+        const critClass  = `crit-${m.criticidade}`;
+        return `
+        <div class="motor-card${alertClass}" onclick="abrirDetalhes(${idx})">
+            <div class="motor-card-header">
+                <div>
+                    <div class="motor-card-title">${m.id_unico_tag}${alertDot}</div>
+                    <div class="motor-card-make">${m.fabricante} · ${m.modelo}</div>
+                </div>
+                <span class="badge ${badgeClass}">${m.status_atual}</span>
+            </div>
+            <div class="motor-card-info">
+                <div class="motor-info-item">
+                    <span class="motor-info-label">Potência</span>
+                    <span class="motor-info-value">${m.potencia_cv} CV</span>
+                </div>
+                <div class="motor-info-item">
+                    <span class="motor-info-label">Carcaça</span>
+                    <span class="motor-info-value">${m.carcaca}</span>
+                </div>
+                <div class="motor-info-item">
+                    <span class="motor-info-label">Criticidade</span>
+                    <span class="motor-info-value ${critClass}">${m.criticidade}</span>
+                </div>
+                <div class="motor-info-item">
+                    <span class="motor-info-label">Rebobinagens</span>
+                    <span class="motor-info-value">${m.num_rebobinagens}x${alrt ? ' ⚠️' : ''}</span>
+                </div>
+                <div class="motor-info-item">
+                    <span class="motor-info-label">Rotação</span>
+                    <span class="motor-info-value">${m.rotacao_rpm} RPM</span>
+                </div>
+                <div class="motor-info-item">
+                    <span class="motor-info-label">Tensão</span>
+                    <span class="motor-info-value">${m.tensao_v} V</span>
+                </div>
+            </div>
+            <div class="motor-card-local">📍 ${m.local_atual}</div>
+            <div class="motor-card-footer" onclick="event.stopPropagation();">
+                <button class="btn btn-primary"
+                    onclick="abrirMov(${idx})">📦 Movimentar</button>
+                <button class="btn btn-secondary"
+                    onclick="abrirDetalhes(${idx})">👁 Detalhes</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ══════════════════════════════════════════════
+//  SHEET DETALHES
+// ══════════════════════════════════════════════
+const sapLabel = {
+    'sincronizado':    '🟢 Sincronizado',
+    'pendente':        '🟡 Pendente',
+    'nao_sincronizado':'⚪ Não Sincronizado',
+    'erro':            '🔴 Erro'
+};
+
+function abrirDetalhes(idx) {
+    const m = motores[idx];
+    idxAtual = idx;
+    document.getElementById('detTitulo').textContent = m.id_unico_tag;
+
+    const hist = (m.historico && m.historico.length)
+        ? [...m.historico].reverse().map(h =>
+            `<div class="tl-item">
+                <div class="tl-dot"></div>
+                <div>
+                    <div class="tl-text">${h.acao}</div>
+                    <div class="tl-date">${fmtDate(h.data)}</div>
+                </div>
+            </div>`).join('')
+        : '<p style="color:var(--texto2);font-size:13px;">Sem histórico registrado.</p>';
+
+    document.getElementById('detBody').innerHTML = `
+        <div class="info-banner">
+            <div class="bid">${m.id_unico_tag}</div>
+            <div class="bdesc">${m.fabricante} ${m.modelo} — ${m.potencia_cv} CV</div>
+            <div class="bloc">📍 ${m.local_atual}</div>
+        </div>
+
+        <p class="sec-label">🏷️ Identificação</p>
+        <div class="det-grid">
+            <div class="det-item"><div class="det-label">Tag / ID</div><div class="det-value">${m.id_unico_tag}</div></div>
+            <div class="det-item"><div class="det-label">Nº Série</div><div class="det-value">${m.num_serie_fabricante||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Fabricante</div><div class="det-value">${m.fabricante}</div></div>
+            <div class="det-item"><div class="det-label">Modelo</div><div class="det-value">${m.modelo}</div></div>
+            <div class="det-item"><div class="det-label">Ano Fabric.</div><div class="det-value">${m.ano_fabricacao||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Classe IE</div><div class="det-value">${m.rendimento_classe_ie||'—'}</div></div>
+        </div>
+
+        <p class="sec-label">⚡ Dados Elétricos</p>
+        <div class="det-grid">
+            <div class="det-item"><div class="det-label">Potência</div><div class="det-value">${m.potencia_cv} CV / ${m.potencia_kw||'—'} kW</div></div>
+            <div class="det-item"><div class="det-label">Tensão</div><div class="det-value">${m.tensao_v} V</div></div>
+            <div class="det-item"><div class="det-label">Corrente In</div><div class="det-value">${m.corrente_in_a||'—'} A</div></div>
+            <div class="det-item"><div class="det-label">Rotação</div><div class="det-value">${m.rotacao_rpm} RPM</div></div>
+            <div class="det-item"><div class="det-label">Fat. Serviço</div><div class="det-value">${m.fator_servico||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Isolamento</div><div class="det-value">Classe ${m.classe_isolamento||'—'}</div></div>
+        </div>
+
+        <p class="sec-label">🔧 Dados Mecânicos</p>
+        <div class="det-grid">
+            <div class="det-item"><div class="det-label">Carcaça</div><div class="det-value">${m.carcaca}</div></div>
+            <div class="det-item"><div class="det-label">Grau IP</div><div class="det-value">${m.grau_protecao_ip||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Rol. Diant.</div><div class="det-value">${m.rolamento_dianteiro||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Rol. Tras.</div><div class="det-value">${m.rolamento_traseiro||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Peso</div><div class="det-value">${m.peso_kg||'—'} kg</div></div>
+            <div class="det-item"><div class="det-label">Rebobinagens</div><div class="det-value">${m.num_rebobinagens}x ${parseInt(m.num_rebobinagens)>=3?'⚠️':''}</div></div>
+        </div>
+
+        <p class="sec-label">📍 Localização e Status</p>
+        <div class="det-grid">
+            <div class="det-item"><div class="det-label">Status</div><div class="det-value">${m.status_atual}</div></div>
+            <div class="det-item"><div class="det-label">Criticidade</div><div class="det-value">${m.criticidade}</div></div>
+            <div class="det-item full"><div class="det-label">Local Atual</div><div class="det-value">${m.local_atual}</div></div>
+            <div class="det-item"><div class="det-label">Últ. Manutenção</div><div class="det-value">${fmtDate(m.data_ultima_manutencao)||'—'}</div></div>
+        </div>
+
+        <p class="sec-label">💼 SAP PM</p>
+        <div class="det-grid">
+            <div class="det-item"><div class="det-label">Nº Equip.</div><div class="det-value">${m.num_equipamento_sap||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Sincronização</div><div class="det-value">${sapLabel[m.status_sincronizacao_sap]||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Centro Custo</div><div class="det-value">${m.centro_custo_sap||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Local SAP</div><div class="det-value">${m.local_instalacao_sap||'—'}</div></div>
+        </div>
+
+        ${m.observacoes ? `
+        <p class="sec-label">📋 Observações</p>
+        <div style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-left:4px solid var(--amarelo);border-radius:6px;padding:14px;font-size:13px;color:var(--text-primary);margin-bottom:4px;">${m.observacoes}</div>` : ''}
+
+        <p class="sec-label">📅 Histórico de Movimentações</p>
+        <div>${hist}</div>
+
+        <button class="btn btn-primary btn-full" style="margin-top:20px;"
+            onclick="fecharSheet('sheetDet'); abrirMov(${idx})">📦 Movimentar Este Motor</button>
+        <div style="height:24px;"></div>
+    `;
+    abrirSheet('sheetDet');
+}
+
+// ══════════════════════════════════════════════
+//  SHEET MOVIMENTAÇÃO
+// ══════════════════════════════════════════════
+function abrirMov(idx) {
+    const m = motores[idx];
+    idxAtual = idx;
+
+    document.getElementById('mov_id').textContent   = m.id_unico_tag;
+    document.getElementById('mov_desc').textContent = `${m.fabricante} ${m.modelo} — ${m.potencia_cv} CV`;
+    document.getElementById('mov_loc').textContent  = `📍 ${m.local_atual}`;
+    document.getElementById('mov_status').value     = m.status_atual;
+    document.getElementById('mov_crit').value       = m.criticidade;
+    document.getElementById('mov_novoLocal').value  = '';
+    document.getElementById('mov_novoStatus').value = '';
+    document.getElementById('mov_sap').value        = 'pendente';
+    document.getElementById('mov_obs').value        = '';
+
+    // Limpar erros anteriores
+    ['mov_novoLocal','mov_novoStatus'].forEach(id =>
+        document.getElementById(id).classList.remove('erro'));
+
+    abrirSheet('sheetMov');
+}
+
+document.getElementById('formMov').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const novoLocal  = document.getElementById('mov_novoLocal').value.trim();
+    const novoStatus = document.getElementById('mov_novoStatus').value;
+    const sap        = document.getElementById('mov_sap').value;
+    const obs        = document.getElementById('mov_obs').value.trim();
+
+    let ok = true;
+    document.getElementById('mov_novoLocal').classList.toggle('erro', !novoLocal);
+    document.getElementById('mov_novoStatus').classList.toggle('erro', !novoStatus);
+    if (!novoLocal || !novoStatus) return;
+
+    const m = motores[idxAtual];
+    const localAnt = m.local_atual;
+
+    m.local_atual            = novoLocal;
+    m.status_atual           = novoStatus;
+    m.local_instalacao_sap   = novoLocal;
+    m.status_sincronizacao_sap = sap;
+
+    const hoje = new Date();
+    const dataStr = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+    const acao = `Movimentado de "${localAnt}" para "${novoLocal}" (${novoStatus})${obs ? ' — ' + obs : ''}`;
+
+    if (!m.historico) m.historico = [];
+    m.historico.push({ data: dataStr, acao });
+
+    salvar(motores);
+    fecharSheet('sheetMov');
+    renderLista();
+    showToast(`✅ ${m.id_unico_tag} → ${novoLocal}`);
+});
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+function abrirSheet(id) {
+    document.getElementById('overlay').classList.add('open');
+    document.getElementById(id).classList.add('open');
+}
+function fecharSheet(id) {
+    document.getElementById('overlay').classList.remove('open');
+    document.getElementById(id).classList.remove('open');
+}
+
+function fmtDate(d) {
+    if (!d) return '';
+    const p = d.split('-');
+    return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════
+//  EVENTOS
+// ══════════════════════════════════════════════
+document.getElementById('closeDet') .addEventListener('click', () => fecharSheet('sheetDet'));
+document.getElementById('closeMov') .addEventListener('click', () => fecharSheet('sheetMov'));
+document.getElementById('btnCancelarMov').addEventListener('click', () => fecharSheet('sheetMov'));
+
+document.getElementById('overlay').addEventListener('click', () => {
+    fecharSheet('sheetDet');
+    fecharSheet('sheetMov');
+});
+
+document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        filtroSts = chip.dataset.f;
+        renderLista();
+    });
+});
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    filtroBusc = this.value;
+    renderLista();
+});
+
+// Recarrega dados se a aba ficar em foco (útil no desktop)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { motores = carregar(); renderLista(); }
+});
+
+// ══════════════════════════════════════════════
+//  DARK MODE
+// ══════════════════════════════════════════════
+document.getElementById('themeBtn').addEventListener('click', () => {
+    const isDark = document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem('motortrack_theme', isDark ? 'dark' : 'light');
+    document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+});
+
+(function initTheme() {
+    const isDark = localStorage.getItem('motortrack_theme') === 'dark';
+    if (isDark) {
+        document.documentElement.classList.add('dark-mode');
+        document.getElementById('themeBtn').textContent = '☀️';
+    }
+})();
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+renderLista();
+</script>
+</body>
+</html>
