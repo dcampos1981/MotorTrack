@@ -790,6 +790,7 @@ const dadosIniciais = [
 const KEY = 'motortrack_dados';
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5CFYqIYUpJRRIu6vS2Ui1FtraYdesiJ5MrgUnV3DqYIcSRMkQRo2ZE0LUHcLtSO2G/exec';
 let _sincronizacaoAtiva = false;
+let _ultimoSync = 0;
 
 function carregar() {
     try {
@@ -935,6 +936,7 @@ function carregarDaPlanilha() {
             renderLista();
             atualizarSyncBtn('ok');
             _sincronizacaoAtiva = true;
+            _ultimoSync = Date.now();
             return true;
         })
         .catch(function(err) {
@@ -1248,9 +1250,19 @@ document.getElementById('searchInput').addEventListener('input', function() {
     renderLista();
 });
 
-// Recarrega dados se a aba ficar em foco (útil no desktop)
+// Recarrega dados se a aba ficar em foco — busca da planilha se sync ativo
 document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) { motores = carregar(); renderLista(); }
+    if (!document.hidden) {
+        var agora = Date.now();
+        if (_sincronizacaoAtiva && agora - _ultimoSync > 30000) {
+            _ultimoSync = agora;
+            console.log('[MOBILE] Tab reativada — carregando dados atualizados da planilha...');
+            carregarDaPlanilha();
+        } else {
+            motores = carregar();
+            renderLista();
+        }
+    }
 });
 
 // ══════════════════════════════════════════════
@@ -1274,11 +1286,11 @@ document.getElementById('themeBtn').addEventListener('click', () => {
 //  SYNC BUTTON + AUTO-LOAD
 // ══════════════════════════════════════════════
 document.getElementById('btnSync').addEventListener('click', function() {
-    console.log('[MOBILE] Sincronização manual...');
-    enviarParaPlanilha();
-    setTimeout(function() {
-        carregarDaPlanilha();
-    }, 3000);
+    console.log('[MOBILE] Sincronização manual: carregando da planilha primeiro...');
+    carregarDaPlanilha().then(function() {
+        console.log('[MOBILE] Dados carregados. Enviando dados locais...');
+        enviarParaPlanilha();
+    });
 });
 
 // ══════════════════════════════════════════════
