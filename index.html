@@ -1077,55 +1077,60 @@ function abrirDetalhes(idx) {
             <div class="bloc">📍 ${m.local_atual}</div>
         </div>
 
-        <p class="sec-label">🏷️ Identificação</p>
+        <p class="sec-label">📋 Dados de Identificação</p>
         <div class="det-grid">
             <div class="det-item"><div class="det-label">Tag / ID</div><div class="det-value">${m.id_unico_tag}</div></div>
             <div class="det-item"><div class="det-label">Nº Série</div><div class="det-value">${m.num_serie_fabricante||'—'}</div></div>
             <div class="det-item"><div class="det-label">Fabricante</div><div class="det-value">${m.fabricante}</div></div>
             <div class="det-item"><div class="det-label">Modelo</div><div class="det-value">${m.modelo}</div></div>
             <div class="det-item"><div class="det-label">Ano Fabric.</div><div class="det-value">${m.ano_fabricacao||'—'}</div></div>
-            <div class="det-item"><div class="det-label">Classe IE</div><div class="det-value">${m.rendimento_classe_ie||'—'}</div></div>
         </div>
 
-        <p class="sec-label">⚡ Dados Elétricos</p>
+        <p class="sec-label">⚡ Dados da Placa Elétrica</p>
         <div class="det-grid">
-            <div class="det-item"><div class="det-label">Potência</div><div class="det-value">${m.potencia_cv} CV / ${m.potencia_kw||'—'} kW</div></div>
-            <div class="det-item"><div class="det-label">Tensão</div><div class="det-value">${m.tensao_v} V</div></div>
-            <div class="det-item"><div class="det-label">Corrente In</div><div class="det-value">${m.corrente_in_a||'—'} A</div></div>
-            <div class="det-item"><div class="det-label">Rotação</div><div class="det-value">${m.rotacao_rpm} RPM</div></div>
-            <div class="det-item"><div class="det-label">Fat. Serviço</div><div class="det-value">${m.fator_servico||'—'}</div></div>
-            <div class="det-item"><div class="det-label">Isolamento</div><div class="det-value">Classe ${m.classe_isolamento||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Potência (CV)</div><div class="det-value">${m.potencia_cv}</div></div>
+            <div class="det-item"><div class="det-label">Potência (kW)</div><div class="det-value">${m.potencia_kw||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Tensão (V)</div><div class="det-value">${m.tensao_v}</div></div>
+            <div class="det-item"><div class="det-label">Corrente (A)</div><div class="det-value">${m.corrente_in_a||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Rotação (RPM)</div><div class="det-value">${m.rotacao_rpm}</div></div>
+            <div class="det-item"><div class="det-label">Rendimento IE</div><div class="det-value">${m.rendimento_classe_ie||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Fator Serviço</div><div class="det-value">${m.fator_servico||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Isolamento</div><div class="det-value">${m.classe_isolamento||'—'}</div></div>
         </div>
 
-        <p class="sec-label">🔧 Dados Mecânicos</p>
+        <p class="sec-label">🔧 Dados Mecânicos e Construtivos</p>
         <div class="det-grid">
             <div class="det-item"><div class="det-label">Carcaça</div><div class="det-value">${m.carcaca}</div></div>
             <div class="det-item"><div class="det-label">Grau IP</div><div class="det-value">${m.grau_protecao_ip||'—'}</div></div>
-            <div class="det-item"><div class="det-label">Rol. Diant.</div><div class="det-value">${m.rolamento_dianteiro||'—'}</div></div>
-            <div class="det-item"><div class="det-label">Rol. Tras.</div><div class="det-value">${m.rolamento_traseiro||'—'}</div></div>
-            <div class="det-item"><div class="det-label">Peso</div><div class="det-value">${m.peso_kg||'—'} kg</div></div>
-            <div class="det-item"><div class="det-label">Rebobinagens</div><div class="det-value">${m.num_rebobinagens}x ${parseInt(m.num_rebobinagens)>=3?'⚠️':''}</div></div>
+            <div class="det-item"><div class="det-label">Rol. Dianteiro</div><div class="det-value">${m.rolamento_dianteiro||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Rol. Traseiro</div><div class="det-value">${m.rolamento_traseiro||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Peso (kg)</div><div class="det-value">${m.peso_kg||'—'}</div></div>
         </div>
 
-        <p class="sec-label">📍 Localização e Status</p>
+        <p class="sec-label">📍 Localização e Status Operacional</p>
         <div class="det-grid">
             <div class="det-item"><div class="det-label">Status</div><div class="det-value">${m.status_atual}</div></div>
             <div class="det-item"><div class="det-label">Criticidade</div><div class="det-value">${m.criticidade}</div></div>
             <div class="det-item full"><div class="det-label">Local Atual</div><div class="det-value">${m.local_atual}</div></div>
-            <div class="det-item"><div class="det-label">Últ. Manutenção</div><div class="det-value">${fmtDate(m.data_ultima_manutencao)||'—'}</div></div>
         </div>
 
-        <p class="sec-label">💼 SAP PM</p>
+        <p class="sec-label">💼 Dados de Integração SAP PM</p>
         <div class="det-grid">
-            <div class="det-item"><div class="det-label">Nº Equip.</div><div class="det-value">${m.num_equipamento_sap||'—'}</div></div>
-            <div class="det-item"><div class="det-label">Sincronização</div><div class="det-value">${sapLabel[m.status_sincronizacao_sap]||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Centro Planej.</div><div class="det-value">${m.centro_planejamento_sap||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Grupo Planej.</div><div class="det-value">${m.grupo_planejamento_sap||'—'}</div></div>
             <div class="det-item"><div class="det-label">Centro Custo</div><div class="det-value">${m.centro_custo_sap||'—'}</div></div>
-            <div class="det-item"><div class="det-label">Local SAP</div><div class="det-value">${m.local_instalacao_sap||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Nº Equip. SAP</div><div class="det-value">${m.num_equipamento_sap||'—'}</div></div>
+            <div class="det-item full"><div class="det-label">Local Instalação SAP</div><div class="det-value">${m.local_instalacao_sap||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Status Sync SAP</div><div class="det-value">${sapLabel[m.status_sincronizacao_sap]||'—'}</div></div>
+            <div class="det-item"><div class="det-label">Última Sync</div><div class="det-value">${m.ultima_sincronizacao_sap||'—'}</div></div>
         </div>
 
-        ${m.observacoes ? `
-        <p class="sec-label">📋 Observações</p>
-        <div style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-left:4px solid var(--amarelo);border-radius:6px;padding:14px;font-size:13px;color:var(--text-primary);margin-bottom:4px;">${m.observacoes}</div>` : ''}
+        <p class="sec-label">🔨 Histórico de Manutenção</p>
+        <div class="det-grid">
+            <div class="det-item"><div class="det-label">Nº Rebobinagens</div><div class="det-value">${m.num_rebobinagens}x ${parseInt(m.num_rebobinagens)>=3?'⚠️':''}</div></div>
+            <div class="det-item"><div class="det-label">Últ. Manutenção</div><div class="det-value">${fmtDate(m.data_ultima_manutencao)||'—'}</div></div>
+            ${m.observacoes ? `<div class="det-item full"><div class="det-label">Observações</div><div class="det-value" style="background:var(--bg-tertiary);border:1px solid var(--border-color);border-left:4px solid var(--amarelo);border-radius:6px;padding:10px;font-size:13px;">${m.observacoes}</div></div>` : ''}
+        </div>
 
         <p class="sec-label">📅 Histórico de Movimentações</p>
         <div>${hist}</div>
