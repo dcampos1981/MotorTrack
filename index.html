@@ -423,6 +423,33 @@
         :root.dark-mode .badge-Sucata   { background-color: #7f1d1d; color: #fca5a5; }
         :root.dark-mode .motor-card.alerta { background-color: rgba(239,68,68,.08); }
         :root.dark-mode .info-banner { background: linear-gradient(135deg, #0f172a, #1a3050); }
+
+        /* ─── BOTÃO SYNC ─── */
+        .sync-btn {
+            background: rgba(34,197,94,.15);
+            border: 1px solid rgba(34,197,94,.3);
+            color: #22c55e;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px; font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+            transition: var(--transition);
+            white-space: nowrap;
+            font-family: inherit;
+        }
+        .sync-btn:active { background: rgba(34,197,94,.3); }
+        .sync-btn:disabled { opacity: 0.6; pointer-events: none; }
+        .sync-btn.sync-loading {
+            background: rgba(234,179,8,.15);
+            border-color: rgba(234,179,8,.3);
+            color: #eab308;
+        }
+        .sync-btn.sync-error {
+            background: rgba(239,68,68,.15);
+            border-color: rgba(239,68,68,.3);
+            color: #ef4444;
+        }
     </style>
 </head>
 <body>
@@ -433,7 +460,8 @@
         <div class="header-left">
             <div class="app-title">Motor<span>Track</span></div>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button class="sync-btn" id="btnSync" title="Sincronizar com Google Sheets">🔄 Sync</button>
             <span class="counter" id="counter">—</span>
             <button class="theme-btn" id="themeBtn" title="Alternar tema">🌙</button>
         </div>
@@ -760,6 +788,8 @@ const dadosIniciais = [
 //  ESTADO
 // ══════════════════════════════════════════════
 const KEY = 'motortrack_dados';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5CFYqIYUpJRRIu6vS2Ui1FtraYdesiJ5MrgUnV3DqYIcSRMkQRo2ZE0LUHcLtSO2G/exec';
+let _sincronizacaoAtiva = false;
 
 function carregar() {
     try {
@@ -767,12 +797,178 @@ function carregar() {
         return s ? JSON.parse(s) : dadosIniciais;
     } catch(e) { return dadosIniciais; }
 }
-function salvar(data) { localStorage.setItem(KEY, JSON.stringify(data)); }
+
+function salvar(data) {
+    localStorage.setItem(KEY, JSON.stringify(data));
+    if (_sincronizacaoAtiva) {
+        enviarParaPlanilha();
+    }
+}
 
 let motores    = carregar();
 let filtroSts  = '';
 let filtroBusc = '';
 let idxAtual   = null;
+
+// ══════════════════════════════════════════════
+//  SINCRONIZAÇÃO COM GOOGLE SHEETS
+// ══════════════════════════════════════════════
+function enviarParaPlanilha() {
+    var agora = new Date();
+    var timestampSync = agora.getFullYear() + '-' +
+        String(agora.getMonth() + 1).padStart(2, '0') + '-' +
+        String(agora.getDate()).padStart(2, '0') + ' ' +
+        String(agora.getHours()).padStart(2, '0') + ':' +
+        String(agora.getMinutes()).padStart(2, '0');
+    motores.forEach(function(m) {
+        m.ultima_sincronizacao_sap = timestampSync;
+        m.status_sincronizacao_sap = 'sincronizado';
+    });
+    localStorage.setItem(KEY, JSON.stringify(motores));
+
+    var historicoCompleto = [];
+    motores.forEach(function(m) {
+        if (m.historico && m.historico.length > 0) {
+            m.historico.forEach(function(h) {
+                historicoCompleto.push({
+                    motor_id: m.id_unico_tag,
+                    data: h.data,
+                    acao: h.acao
+                });
+            });
+        }
+    });
+
+    var motoresSemHistorico = motores.map(function(m) {
+        var copia = {};
+        for (var chave in m) {
+            if (chave !== 'historico') {
+                copia[chave] = m[chave];
+            }
+        }
+        return copia;
+    });
+
+    var payload = {
+        acao: 'salvar_tudo',
+        motores: motoresSemHistorico,
+        historico: historicoCompleto,
+        planos: JSON.parse(localStorage.getItem('motortrack_planos') || '[]')
+    };
+
+    console.log('[MOBILE] Enviando dados para a planilha...');
+    atualizarSyncBtn('loading');
+
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify(payload)
+    })
+    .then(function() {
+        console.log('[MOBILE] POST enviado (mode: no-cors)');
+        atualizarSyncBtn('ok');
+    })
+    .catch(function(err) {
+        console.error('[MOBILE] Erro ao enviar:', err.message || err);
+        atualizarSyncBtn('erro');
+    });
+}
+
+function carregarDaPlanilha() {
+    atualizarSyncBtn('loading');
+    console.log('[MOBILE] Carregando dados da planilha...');
+
+    return fetch(APPS_SCRIPT_URL + '?acao=tudo')
+        .then(function(r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.text();
+        })
+        .then(function(texto) {
+            console.log('[MOBILE] Resposta recebida (' + texto.length + ' bytes)');
+            if (!texto || texto.length < 5) {
+                throw new Error('Resposta vazia da planilha');
+            }
+            var dados = JSON.parse(texto);
+
+            if (dados.erro) {
+                throw new Error('Erro da API: ' + dados.erro);
+            }
+
+            if (dados.motores && dados.motores.length > 0) {
+                dados.motores.forEach(function(m) {
+                    m.potencia_cv = parseFloat(m.potencia_cv) || 0;
+                    m.potencia_kw = parseFloat(m.potencia_kw) || 0;
+                    m.rotacao_rpm = parseInt(m.rotacao_rpm) || 0;
+                    m.corrente_in_a = parseFloat(m.corrente_in_a) || 0;
+                    m.fator_servico = parseFloat(m.fator_servico) || 0;
+                    m.peso_kg = parseFloat(m.peso_kg) || 0;
+                    m.num_rebobinagens = parseInt(m.num_rebobinagens) || 0;
+                    m.ano_fabricacao = m.ano_fabricacao ? String(m.ano_fabricacao) : '';
+                    m.data_ultima_manutencao = m.data_ultima_manutencao ? String(m.data_ultima_manutencao).substring(0, 10) : '';
+                    if (!m.historico) m.historico = [];
+                });
+
+                // Reassociar histórico da planilha aos motores
+                if (dados.historico && dados.historico.length > 0) {
+                    var historicoMap = {};
+                    dados.historico.forEach(function(h) {
+                        if (!historicoMap[h.motor_id]) historicoMap[h.motor_id] = [];
+                        historicoMap[h.motor_id].push({ data: h.data, acao: h.acao });
+                    });
+                    dados.motores.forEach(function(m) {
+                        if (historicoMap[m.id_unico_tag]) {
+                            m.historico = historicoMap[m.id_unico_tag];
+                        }
+                    });
+                }
+
+                motores = dados.motores;
+                localStorage.setItem(KEY, JSON.stringify(motores));
+                console.log('[MOBILE] Motores carregados:', motores.length);
+            }
+
+            if (dados.planos && dados.planos.length > 0) {
+                localStorage.setItem('motortrack_planos', JSON.stringify(dados.planos));
+                console.log('[MOBILE] Planos carregados:', dados.planos.length);
+            }
+
+            renderLista();
+            atualizarSyncBtn('ok');
+            _sincronizacaoAtiva = true;
+            return true;
+        })
+        .catch(function(err) {
+            console.error('[MOBILE] ERRO ao carregar:', err.message || err);
+            atualizarSyncBtn('erro');
+            _sincronizacaoAtiva = true;
+            return false;
+        });
+}
+
+function atualizarSyncBtn(status) {
+    var btn = document.getElementById('btnSync');
+    if (!btn) return;
+    btn.classList.remove('sync-loading', 'sync-error');
+    if (status === 'loading') {
+        btn.textContent = '⏳ Sincronizando...';
+        btn.classList.add('sync-loading');
+        btn.disabled = true;
+    } else if (status === 'ok') {
+        btn.textContent = '✅ Sincronizado';
+        btn.disabled = false;
+        setTimeout(function() {
+            btn.textContent = '🔄 Sync';
+        }, 3000);
+    } else if (status === 'erro') {
+        btn.textContent = '❌ Erro';
+        btn.classList.add('sync-error');
+        btn.disabled = false;
+        setTimeout(function() {
+            btn.textContent = '🔄 Sync';
+            btn.classList.remove('sync-error');
+        }, 5000);
+    }
+}
 
 // ══════════════════════════════════════════════
 //  RENDER LISTA
@@ -1075,9 +1271,30 @@ document.getElementById('themeBtn').addEventListener('click', () => {
 })();
 
 // ══════════════════════════════════════════════
+//  SYNC BUTTON + AUTO-LOAD
+// ══════════════════════════════════════════════
+document.getElementById('btnSync').addEventListener('click', function() {
+    console.log('[MOBILE] Sincronização manual...');
+    enviarParaPlanilha();
+    setTimeout(function() {
+        carregarDaPlanilha();
+    }, 3000);
+});
+
+// ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
 renderLista();
+
+// Carregar dados da planilha automaticamente ao abrir
+console.log('[MOBILE] Iniciando carregamento da planilha...');
+carregarDaPlanilha().then(function(ok) {
+    if (ok) {
+        console.log('[MOBILE] Sincronização inicial concluída!');
+    } else {
+        console.warn('[MOBILE] Falha na sincronização inicial. Usando dados locais.');
+    }
+});
 </script>
 </body>
 </html>
