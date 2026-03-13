@@ -463,6 +463,9 @@
             gap: 24px;
         }
         #nfc-loading.ativo { display: flex; }
+        body.nfc-mode .app-header,
+        body.nfc-mode .filter-bar,
+        body.nfc-mode .motor-list { display: none !important; }
         .nfc-spinner {
             width: 56px; height: 56px;
             border: 4px solid rgba(14,165,233,.2);
@@ -490,6 +493,18 @@
     <div class="nfc-loading-id" id="nfc-loading-id">—</div>
     <div class="nfc-loading-txt">Carregando dados do motor…</div>
 </div>
+<script>
+// Ativa IMEDIATAMENTE se a URL veio de uma tag NFC
+(function() {
+    var p = new URLSearchParams(window.location.search);
+    var mid = p.get('motor');
+    if (mid) {
+        document.body.classList.add('nfc-mode');
+        document.getElementById('nfc-loading-id').textContent = mid.toUpperCase();
+        document.getElementById('nfc-loading').classList.add('ativo');
+    }
+})();
+</script>
 
 <!-- HEADER -->
 <div class="app-header">
@@ -1342,21 +1357,19 @@ renderLista();
     const motorId = params.get('motor');
     if (!motorId) return;
 
-    // Ativa a tela de carregamento
-    document.getElementById('nfc-loading-id').textContent = motorId.toUpperCase();
-    document.getElementById('nfc-loading').classList.add('ativo');
-
     function abrirMotor() {
         const idx = motores.findIndex(function(m) {
             return m.id_unico_tag.toUpperCase() === motorId.toUpperCase();
         });
         document.getElementById('nfc-loading').classList.remove('ativo');
+        document.body.classList.remove('nfc-mode');
         if (idx !== -1) {
             filtroBusc = motorId;
             document.getElementById('searchInput').value = motorId;
             renderLista();
             abrirDetalhes(idx);
         } else {
+            renderLista();
             showToast('⚠️ Motor "' + motorId + '" não encontrado');
         }
     }
@@ -1387,12 +1400,14 @@ carregarDaPlanilha().then(function(ok) {
                 return m.id_unico_tag.toUpperCase() === id.toUpperCase();
             });
             document.getElementById('nfc-loading').classList.remove('ativo');
+            document.body.classList.remove('nfc-mode');
             if (idx2 !== -1) {
                 filtroBusc = id;
                 document.getElementById('searchInput').value = id;
                 renderLista();
                 abrirDetalhes(idx2);
             } else {
+                renderLista();
                 showToast('⚠️ Motor "' + id + '" não encontrado');
             }
         } else if (idxAtual !== null && document.getElementById('sheetDet').classList.contains('open')) {
@@ -1402,6 +1417,7 @@ carregarDaPlanilha().then(function(ok) {
     } else {
         console.warn('[MOBILE] Falha na sincronização inicial. Usando dados locais.');
         document.getElementById('nfc-loading').classList.remove('ativo');
+        document.body.classList.remove('nfc-mode');
     }
 });
 </script>
