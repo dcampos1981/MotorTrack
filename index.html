@@ -482,6 +482,23 @@
         .nfc-loading-txt {
             font-size: 14px; color: rgba(255,255,255,.5);
         }
+        .nfc-loading-sync {
+            font-size: 13px; font-weight: 600;
+            padding: 6px 16px; border-radius: 20px;
+            margin-top: 4px; transition: all 0.3s ease;
+        }
+        .nfc-sync-loading {
+            background: rgba(234,179,8,.15); color: #eab308;
+            border: 1px solid rgba(234,179,8,.3);
+        }
+        .nfc-sync-ok {
+            background: rgba(34,197,94,.15); color: #22c55e;
+            border: 1px solid rgba(34,197,94,.3);
+        }
+        .nfc-sync-erro {
+            background: rgba(239,68,68,.15); color: #ef4444;
+            border: 1px solid rgba(239,68,68,.3);
+        }
     </style>
 </head>
 <body>
@@ -492,6 +509,7 @@
     <div class="nfc-spinner"></div>
     <div class="nfc-loading-id" id="nfc-loading-id">—</div>
     <div class="nfc-loading-txt">Carregando dados do motor…</div>
+    <div class="nfc-loading-sync" id="nfc-sync-status"></div>
 </div>
 <script>
 // Ativa IMEDIATAMENTE se a URL veio de uma tag NFC
@@ -1164,15 +1182,19 @@ function carregarDaPlanilha() {
 
 function atualizarSyncBtn(status) {
     var btn = document.getElementById('btnSync');
+    var nfcSync = document.getElementById('nfc-sync-status');
     if (!btn) return;
     btn.classList.remove('sync-loading', 'sync-error');
+    if (nfcSync) nfcSync.className = 'nfc-loading-sync';
     if (status === 'loading') {
         btn.textContent = '⏳ Sincronizando...';
         btn.classList.add('sync-loading');
         btn.disabled = true;
+        if (nfcSync) { nfcSync.textContent = '⏳ Sincronizando com Planilha…'; nfcSync.classList.add('nfc-sync-loading'); }
     } else if (status === 'ok') {
         btn.textContent = '✅ Sincronizado';
         btn.disabled = false;
+        if (nfcSync) { nfcSync.textContent = '✅ Sincronizado'; nfcSync.classList.add('nfc-sync-ok'); }
         setTimeout(function() {
             btn.textContent = '🔄 Sync';
         }, 3000);
@@ -1180,6 +1202,7 @@ function atualizarSyncBtn(status) {
         btn.textContent = '❌ Erro';
         btn.classList.add('sync-error');
         btn.disabled = false;
+        if (nfcSync) { nfcSync.textContent = '❌ Erro na sincronização'; nfcSync.classList.add('nfc-sync-erro'); }
         setTimeout(function() {
             btn.textContent = '🔄 Sync';
             btn.classList.remove('sync-error');
