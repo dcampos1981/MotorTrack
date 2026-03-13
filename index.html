@@ -1299,39 +1299,37 @@ document.getElementById('btnSync').addEventListener('click', function() {
 // ══════════════════════════════════════════════
 renderLista();
 
-// Carregar dados da planilha automaticamente ao abrir
-console.log('[MOBILE] Iniciando carregamento da planilha...');
-carregarDaPlanilha().then(function(ok) {
-    if (ok) {
-        console.log('[MOBILE] Sincronização inicial concluída!');
-    } else {
-        console.warn('[MOBILE] Falha na sincronização inicial. Usando dados locais.');
-    }
-});
-
-// ══════════════════════════════════════════════
-//  LEITURA NFC VIA URL (?motor=M001)
-// ══════════════════════════════════════════════
-// Detectar motor via URL (?motor=M001)
+// ── Leitura NFC via URL: abre o motor IMEDIATAMENTE com dados locais ──
 (function() {
     const params = new URLSearchParams(window.location.search);
     const motorId = params.get('motor');
     if (!motorId) return;
-    // Aguarda dados carregarem e abre o motor
-    carregarDaPlanilha().then(function() {
-        const idx = motores.findIndex(function(m) {
-            return m.id_unico_tag.toUpperCase() === motorId.toUpperCase();
-        });
-        if (idx !== -1) {
-            filtroBusc = motorId;
-            document.getElementById('searchInput').value = motorId;
-            renderLista();
-            abrirDetalhes(idx);
-        } else {
-            showToast('⚠️ Motor "' + motorId + '" não encontrado');
-        }
+    const idx = motores.findIndex(function(m) {
+        return m.id_unico_tag.toUpperCase() === motorId.toUpperCase();
     });
+    if (idx !== -1) {
+        filtroBusc = motorId;
+        document.getElementById('searchInput').value = motorId;
+        renderLista();
+        abrirDetalhes(idx);
+    } else {
+        showToast('⚠️ Motor "' + motorId + '" não encontrado');
+    }
 })();
+
+// ── Sincronização em background — atualiza a ficha aberta quando terminar ──
+console.log('[MOBILE] Iniciando carregamento da planilha...');
+carregarDaPlanilha().then(function(ok) {
+    if (ok) {
+        console.log('[MOBILE] Sincronização inicial concluída!');
+        // Se uma ficha está aberta via NFC, atualiza com os dados mais recentes
+        if (idxAtual !== null && document.getElementById('sheetDet').classList.contains('open')) {
+            abrirDetalhes(idxAtual);
+        }
+    } else {
+        console.warn('[MOBILE] Falha na sincronização inicial. Usando dados locais.');
+    }
+});
 </script>
 </body>
 </html>
