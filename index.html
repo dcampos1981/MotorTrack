@@ -1513,7 +1513,10 @@ document.getElementById('formEdit').addEventListener('submit', function(e) {
 
     salvar(motores);
     fecharSheet('sheetEdit');
+    filtroBusc = m.id_unico_tag;
+    document.getElementById('searchInput').value = m.id_unico_tag;
     renderLista();
+    abrirDetalhes(idxAtual);
     showToast(`✅ ${m.id_unico_tag} — Dados atualizados`);
 });
 
