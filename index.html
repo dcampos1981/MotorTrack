@@ -1511,13 +1511,17 @@ document.getElementById('formEdit').addEventListener('submit', function(e) {
     // Marcar sync como pendente
     m.status_sincronizacao_sap = 'pendente';
 
+    var idxSalvo = idxAtual;
+    var tagSalvo = m.id_unico_tag;
     salvar(motores);
     fecharSheet('sheetEdit');
-    filtroBusc = m.id_unico_tag;
-    document.getElementById('searchInput').value = m.id_unico_tag;
+    filtroBusc = tagSalvo;
+    document.getElementById('searchInput').value = tagSalvo;
     renderLista();
-    abrirDetalhes(idxAtual);
-    showToast(`✅ ${m.id_unico_tag} — Dados atualizados`);
+    setTimeout(function() {
+        abrirDetalhes(idxSalvo);
+        showToast('✅ ' + tagSalvo + ' — Dados atualizados');
+    }, 400);
 });
 
 // ══════════════════════════════════════════════
