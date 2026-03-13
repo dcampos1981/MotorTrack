@@ -1323,6 +1323,9 @@ carregarDaPlanilha().then(function(ok) {
             return m.id_unico_tag.toUpperCase() === motorId.toUpperCase();
         });
         if (idx !== -1) {
+            filtroBusc = motorId;
+            document.getElementById('searchInput').value = motorId;
+            renderLista();
             abrirDetalhes(idx);
         } else {
             showToast('⚠️ Motor "' + motorId + '" não encontrado');
