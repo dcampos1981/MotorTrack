@@ -619,6 +619,169 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- ═══ SHEET: EDIÇÃO ═══ -->
+<div class="sheet" id="sheetEdit">
+    <div class="sheet-drag"></div>
+    <div class="sheet-header">
+        <span class="sheet-title">✏️ Editar Motor</span>
+        <button class="sheet-close" id="closeEdit">✕</button>
+    </div>
+    <div class="sheet-body">
+        <div class="info-banner">
+            <div class="bid" id="edit_id">—</div>
+            <div class="bdesc" id="edit_desc">—</div>
+        </div>
+
+        <form id="formEdit" novalidate>
+            <p class="sec-label">📋 Identificação</p>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Fabricante</label>
+                    <input class="form-input" type="text" id="edit_fabricante">
+                </div>
+                <div>
+                    <label class="form-label">Modelo</label>
+                    <input class="form-input" type="text" id="edit_modelo">
+                </div>
+            </div>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Nº Série</label>
+                    <input class="form-input" type="text" id="edit_serie">
+                </div>
+                <div>
+                    <label class="form-label">Ano Fabricação</label>
+                    <input class="form-input" type="text" id="edit_ano">
+                </div>
+            </div>
+
+            <p class="sec-label">⚡ Placa Elétrica</p>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Potência (CV)</label>
+                    <input class="form-input" type="number" step="any" id="edit_cv">
+                </div>
+                <div>
+                    <label class="form-label">Potência (kW)</label>
+                    <input class="form-input" type="number" step="any" id="edit_kw">
+                </div>
+            </div>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Tensão (V)</label>
+                    <input class="form-input" type="text" id="edit_tensao">
+                </div>
+                <div>
+                    <label class="form-label">Corrente (A)</label>
+                    <input class="form-input" type="number" step="any" id="edit_corrente">
+                </div>
+            </div>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Rotação (RPM)</label>
+                    <input class="form-input" type="number" id="edit_rpm">
+                </div>
+                <div>
+                    <label class="form-label">Rendimento IE</label>
+                    <input class="form-input" type="text" id="edit_ie">
+                </div>
+            </div>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Fator Serviço</label>
+                    <input class="form-input" type="number" step="any" id="edit_fs">
+                </div>
+                <div>
+                    <label class="form-label">Isolamento</label>
+                    <input class="form-input" type="text" id="edit_isolamento">
+                </div>
+            </div>
+
+            <p class="sec-label">🔧 Dados Mecânicos</p>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Carcaça</label>
+                    <input class="form-input" type="text" id="edit_carcaca">
+                </div>
+                <div>
+                    <label class="form-label">Grau IP</label>
+                    <input class="form-input" type="text" id="edit_ip">
+                </div>
+            </div>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Rol. Dianteiro</label>
+                    <input class="form-input" type="text" id="edit_rol_d">
+                </div>
+                <div>
+                    <label class="form-label">Rol. Traseiro</label>
+                    <input class="form-input" type="text" id="edit_rol_t">
+                </div>
+            </div>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Peso (kg)</label>
+                    <input class="form-input" type="number" step="any" id="edit_peso">
+                </div>
+                <div>
+                    <label class="form-label">Criticidade</label>
+                    <select class="form-input" id="edit_crit">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
+            </div>
+
+            <p class="sec-label">💼 SAP PM</p>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Centro Planej.</label>
+                    <input class="form-input" type="text" id="edit_sap_centro">
+                </div>
+                <div>
+                    <label class="form-label">Grupo Planej.</label>
+                    <input class="form-input" type="text" id="edit_sap_grupo">
+                </div>
+            </div>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Centro Custo</label>
+                    <input class="form-input" type="text" id="edit_sap_cc">
+                </div>
+                <div>
+                    <label class="form-label">Nº Equip. SAP</label>
+                    <input class="form-input" type="text" id="edit_sap_equip">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Local Instalação SAP</label>
+                <input class="form-input" type="text" id="edit_sap_local">
+            </div>
+
+            <p class="sec-label">🔨 Manutenção</p>
+            <div class="row2">
+                <div>
+                    <label class="form-label">Nº Rebobinagens</label>
+                    <input class="form-input" type="number" id="edit_rebob">
+                </div>
+                <div>
+                    <label class="form-label">Últ. Manutenção</label>
+                    <input class="form-input" type="date" id="edit_manut">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Observações</label>
+                <textarea class="form-input" id="edit_obs" rows="3" style="resize:none;"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">✅ Salvar Alterações</button>
+            <button type="button" class="btn btn-secondary btn-full" id="btnCancelarEdit">Cancelar</button>
+            <div style="height:20px;"></div>
+        </form>
+    </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════
 //  DADOS INICIAIS (idênticos ao site desktop)
@@ -1090,6 +1253,8 @@ function renderLista() {
                 <button class="btn btn-primary"
                     onclick="abrirMov(${idx})">📦 Movimentar</button>
                 <button class="btn btn-secondary"
+                    onclick="abrirEdit(${idx})">✏️ Editar</button>
+                <button class="btn btn-secondary"
                     onclick="abrirDetalhes(${idx})">👁 Detalhes</button>
             </div>
         </div>`;
@@ -1188,6 +1353,8 @@ function abrirDetalhes(idx) {
         <div>${hist}</div>
 
         <button class="btn btn-primary btn-full" style="margin-top:20px;"
+            onclick="fecharSheet('sheetDet'); abrirEdit(${idx})">✏️ Editar Dados</button>
+        <button class="btn btn-primary btn-full"
             onclick="fecharSheet('sheetDet'); abrirMov(${idx})">📦 Movimentar Este Motor</button>
         <div style="height:24px;"></div>
     `;
@@ -1253,6 +1420,104 @@ document.getElementById('formMov').addEventListener('submit', function(e) {
 });
 
 // ══════════════════════════════════════════════
+//  SHEET EDIÇÃO
+// ══════════════════════════════════════════════
+function abrirEdit(idx) {
+    const m = motores[idx];
+    idxAtual = idx;
+
+    document.getElementById('edit_id').textContent   = m.id_unico_tag;
+    document.getElementById('edit_desc').textContent  = `${m.fabricante} ${m.modelo} — ${m.potencia_cv} CV`;
+
+    // Identificação
+    document.getElementById('edit_fabricante').value = m.fabricante || '';
+    document.getElementById('edit_modelo').value     = m.modelo || '';
+    document.getElementById('edit_serie').value      = m.num_serie_fabricante || '';
+    document.getElementById('edit_ano').value        = m.ano_fabricacao || '';
+
+    // Placa elétrica
+    document.getElementById('edit_cv').value         = m.potencia_cv || '';
+    document.getElementById('edit_kw').value         = m.potencia_kw || '';
+    document.getElementById('edit_tensao').value     = m.tensao_v || '';
+    document.getElementById('edit_corrente').value   = m.corrente_in_a || '';
+    document.getElementById('edit_rpm').value        = m.rotacao_rpm || '';
+    document.getElementById('edit_ie').value         = m.rendimento_classe_ie || '';
+    document.getElementById('edit_fs').value         = m.fator_servico || '';
+    document.getElementById('edit_isolamento').value = m.classe_isolamento || '';
+
+    // Mecânicos
+    document.getElementById('edit_carcaca').value    = m.carcaca || '';
+    document.getElementById('edit_ip').value         = m.grau_protecao_ip || '';
+    document.getElementById('edit_rol_d').value      = m.rolamento_dianteiro || '';
+    document.getElementById('edit_rol_t').value      = m.rolamento_traseiro || '';
+    document.getElementById('edit_peso').value       = m.peso_kg || '';
+    document.getElementById('edit_crit').value       = m.criticidade || 'C';
+
+    // SAP
+    document.getElementById('edit_sap_centro').value = m.centro_planejamento_sap || '';
+    document.getElementById('edit_sap_grupo').value  = m.grupo_planejamento_sap || '';
+    document.getElementById('edit_sap_cc').value     = m.centro_custo_sap || '';
+    document.getElementById('edit_sap_equip').value  = m.num_equipamento_sap || '';
+    document.getElementById('edit_sap_local').value  = m.local_instalacao_sap || '';
+
+    // Manutenção
+    document.getElementById('edit_rebob').value      = m.num_rebobinagens || 0;
+    document.getElementById('edit_manut').value      = m.data_ultima_manutencao || '';
+    document.getElementById('edit_obs').value        = m.observacoes || '';
+
+    abrirSheet('sheetEdit');
+}
+
+document.getElementById('formEdit').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const m = motores[idxAtual];
+
+    // Identificação
+    m.fabricante             = document.getElementById('edit_fabricante').value.trim();
+    m.modelo                 = document.getElementById('edit_modelo').value.trim();
+    m.num_serie_fabricante   = document.getElementById('edit_serie').value.trim();
+    m.ano_fabricacao         = document.getElementById('edit_ano').value.trim();
+
+    // Placa elétrica
+    m.potencia_cv            = parseFloat(document.getElementById('edit_cv').value) || 0;
+    m.potencia_kw            = parseFloat(document.getElementById('edit_kw').value) || 0;
+    m.tensao_v               = document.getElementById('edit_tensao').value.trim();
+    m.corrente_in_a          = parseFloat(document.getElementById('edit_corrente').value) || 0;
+    m.rotacao_rpm            = parseInt(document.getElementById('edit_rpm').value) || 0;
+    m.rendimento_classe_ie   = document.getElementById('edit_ie').value.trim();
+    m.fator_servico          = parseFloat(document.getElementById('edit_fs').value) || 0;
+    m.classe_isolamento      = document.getElementById('edit_isolamento').value.trim();
+
+    // Mecânicos
+    m.carcaca                = document.getElementById('edit_carcaca').value.trim();
+    m.grau_protecao_ip       = document.getElementById('edit_ip').value.trim();
+    m.rolamento_dianteiro    = document.getElementById('edit_rol_d').value.trim();
+    m.rolamento_traseiro     = document.getElementById('edit_rol_t').value.trim();
+    m.peso_kg                = parseFloat(document.getElementById('edit_peso').value) || 0;
+    m.criticidade            = document.getElementById('edit_crit').value;
+
+    // SAP
+    m.centro_planejamento_sap = document.getElementById('edit_sap_centro').value.trim();
+    m.grupo_planejamento_sap  = document.getElementById('edit_sap_grupo').value.trim();
+    m.centro_custo_sap        = document.getElementById('edit_sap_cc').value.trim();
+    m.num_equipamento_sap     = document.getElementById('edit_sap_equip').value.trim();
+    m.local_instalacao_sap    = document.getElementById('edit_sap_local').value.trim();
+
+    // Manutenção
+    m.num_rebobinagens        = parseInt(document.getElementById('edit_rebob').value) || 0;
+    m.data_ultima_manutencao  = document.getElementById('edit_manut').value;
+    m.observacoes             = document.getElementById('edit_obs').value.trim();
+
+    // Marcar sync como pendente
+    m.status_sincronizacao_sap = 'pendente';
+
+    salvar(motores);
+    fecharSheet('sheetEdit');
+    renderLista();
+    showToast(`✅ ${m.id_unico_tag} — Dados atualizados`);
+});
+
+// ══════════════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════════════
 function abrirSheet(id) {
@@ -1282,11 +1547,14 @@ function showToast(msg) {
 // ══════════════════════════════════════════════
 document.getElementById('closeDet') .addEventListener('click', () => fecharSheet('sheetDet'));
 document.getElementById('closeMov') .addEventListener('click', () => fecharSheet('sheetMov'));
+document.getElementById('closeEdit').addEventListener('click', () => fecharSheet('sheetEdit'));
 document.getElementById('btnCancelarMov').addEventListener('click', () => fecharSheet('sheetMov'));
+document.getElementById('btnCancelarEdit').addEventListener('click', () => fecharSheet('sheetEdit'));
 
 document.getElementById('overlay').addEventListener('click', () => {
     fecharSheet('sheetDet');
     fecharSheet('sheetMov');
+    fecharSheet('sheetEdit');
 });
 
 document.querySelectorAll('.chip').forEach(chip => {
