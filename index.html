@@ -1308,6 +1308,27 @@ carregarDaPlanilha().then(function(ok) {
         console.warn('[MOBILE] Falha na sincronização inicial. Usando dados locais.');
     }
 });
+
+// ══════════════════════════════════════════════
+//  LEITURA NFC VIA URL (?motor=M001)
+// ══════════════════════════════════════════════
+// Detectar motor via URL (?motor=M001)
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const motorId = params.get('motor');
+    if (!motorId) return;
+    // Aguarda dados carregarem e abre o motor
+    carregarDaPlanilha().then(function() {
+        const idx = motores.findIndex(function(m) {
+            return m.id_unico_tag.toUpperCase() === motorId.toUpperCase();
+        });
+        if (idx !== -1) {
+            abrirDetalhes(idx);
+        } else {
+            showToast('⚠️ Motor "' + motorId + '" não encontrado');
+        }
+    });
+})();
 </script>
 </body>
 </html>
